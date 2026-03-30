@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  user-service:
+    build: .
+    container_name: user-service
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongo
+    environment:
+      - PORT=3000
+      - MONGO_URI=mongodb://mongo:27017/users-db
+    networks:
+      - user-net
+
+  mongo:
+    image: mongo:7.0
+    container_name: mongo-user
+    ports:
+      - "27019:27017"
+    volumes:
+      - user-mongo-data:/data/db
+    networks:
+      - user-net
+
+volumes:
+  user-mongo-data:
+
+networks:
+  user-net:
+    driver: bridge
