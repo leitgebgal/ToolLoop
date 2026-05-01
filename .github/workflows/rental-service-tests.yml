@@ -4,12 +4,10 @@ on:
   push:
     paths:
       - 'services/rental-service/**'
-      - 'services/rental-service-tests/**'
       - '.github/workflows/rental-service-tests.yml'
   pull_request:
     paths:
       - 'services/rental-service/**'
-      - 'services/rental-service-tests/**'
       - '.github/workflows/rental-service-tests.yml'
 
 jobs:
@@ -19,7 +17,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: services/rental-service-tests
+        working-directory: services/rental-service/rental-service-tests
 
     steps:
       - name: Checkout code
@@ -31,11 +29,16 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore rental-service-tests.csproj
+
+      - name: Build tests
+        run: dotnet build rental-service-tests.csproj --no-restore -c Release
 
       - name: Run unit tests
         run: |
-          dotnet test \
+          dotnet test rental-service-tests.csproj \
+            --no-build \
+            -c Release \
             --logger "trx;LogFileName=test-results.trx" \
             --logger "console;verbosity=normal" \
             --results-directory ./TestResults
@@ -45,4 +48,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: rental-service-test-report
-          path: services/rental-service-tests/TestResults/
+          path: services/rental-service/rental-service-tests/TestResults/
