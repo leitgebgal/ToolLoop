@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="rental-service-tests/rental-service-tests.csproj" Id="a2e9d985-0f4f-4ffe-8fef-a04dd6e61a50" />
+  <Project Path="rental-service/rental-service.csproj" />
+</Solution>

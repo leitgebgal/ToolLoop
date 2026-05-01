@@ -1,0 +1,54 @@
+services:
+  rental-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rental-service
+    ports:
+      - "5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      activemq:
+        condition: service_started
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=rental_db;Username=postgres;Password=postgres
+      - ActiveMQ__BrokerUri=activemq:tcp://activemq:61616
+    networks:
+      - rental-net
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres-rental
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: rental_db
+    volumes:
+      - rental-pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d rental_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - rental-net
+
+  activemq:
+    image: apache/activemq-classic:5.18.3
+    container_name: activemq-rental
+    ports:
+      - "61616:61616"
+      - "8161:8161"
+    networks:
+      - rental-net
+
+volumes:
+  rental-pg-data:
+
+networks:
+  rental-net:
+    driver: bridge

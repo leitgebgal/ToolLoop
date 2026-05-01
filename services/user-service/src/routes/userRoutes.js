@@ -27,8 +27,6 @@ const { protect } = require('../middleware/authMiddleware');
  *         - email
  *         - password
  *       properties:
- *         _id:
- *           type: string
  *         firstName:
  *           type: string
  *           example: Gal
@@ -154,6 +152,31 @@ router.get('/:id', protect, userController.getUser);
  *         required: true
  *         schema:
  *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               firstName:
+ *                 type: string
+ *                 example: Gal
+ *               lastName:
+ *                 type: string
+ *                 example: Leitgeb
+ *               email:
+ *                 type: string
+ *                 example: gal@example.com
+ *               phone:
+ *                 type: string
+ *                 example: 040123456
+ *               city:
+ *                 type: string
+ *                 example: Maribor
+ *               isActive:
+ *                 type: boolean
+ *                 example: true
  *     responses:
  *       200:
  *         description: User updated successfully

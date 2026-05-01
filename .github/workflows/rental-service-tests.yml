@@ -1,0 +1,48 @@
+name: Rental Service - Unit Tests
+
+on:
+  push:
+    paths:
+      - 'services/rental-service/**'
+      - 'services/rental-service-tests/**'
+      - '.github/workflows/rental-service-tests.yml'
+  pull_request:
+    paths:
+      - 'services/rental-service/**'
+      - 'services/rental-service-tests/**'
+      - '.github/workflows/rental-service-tests.yml'
+
+jobs:
+  test:
+    name: Run Unit Tests (C# / xUnit)
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: services/rental-service-tests
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Run unit tests
+        run: |
+          dotnet test \
+            --logger "trx;LogFileName=test-results.trx" \
+            --logger "console;verbosity=normal" \
+            --results-directory ./TestResults
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rental-service-test-report
+          path: services/rental-service-tests/TestResults/

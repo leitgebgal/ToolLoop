@@ -1,0 +1,137 @@
+syntax = "proto3";
+
+package item;
+
+option java_package = "item.toolloop.com.grpc";
+option java_outer_classname = "ItemProto";
+option java_multiple_files = true;
+
+// ─── Messages ───
+
+message Item {
+  string id = 1;
+  string owner_id = 2;
+  string name = 3;
+  string description = 4;
+  string category = 5;
+  string status = 6;  // AVAILABLE | BORROWED | UNAVAILABLE
+  string location = 7;
+  string created_at = 8;
+  string updated_at = 9;
+}
+
+// Common list response
+message ItemsResponse {
+  repeated Item items = 1;
+}
+
+// Create
+message CreateItemRequest {
+  string owner_id = 1;
+  string name = 2;
+  string description = 3;
+  string category = 4;
+  string location = 5;
+}
+
+message CreateItemResponse {
+  Item item = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+// Get by id
+message GetItemRequest {
+  string id = 1;
+}
+
+message GetItemResponse {
+  Item item = 1;
+  bool found = 2;
+}
+
+// Get by owner
+message GetItemsByOwnerRequest {
+  string owner_id = 1;
+}
+
+message GetItemsByOwnerResponse {
+  repeated Item items = 1;
+}
+
+// Get by category
+message GetItemsByCategoryRequest {
+  string category = 1;
+}
+
+// Get all
+message GetAllItemsRequest {}
+
+// Get available
+message GetAvailableItemsRequest {}
+
+// Check availability
+message CheckItemAvailabilityRequest {
+  string id = 1;
+}
+
+message CheckItemAvailabilityResponse {
+  bool available = 1;
+}
+
+// Update item
+message UpdateItemRequest {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  string category = 4;
+  string status = 5;
+  string location = 6;
+}
+
+message UpdateItemResponse {
+  Item item = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+// Update status only
+message UpdateItemStatusRequest {
+  string id = 1;
+  string status = 2;
+}
+
+message UpdateItemStatusResponse {
+  bool success = 1;
+  string message = 2;
+  Item item = 3;
+}
+
+// Delete
+message DeleteItemRequest {
+  string id = 1;
+}
+
+message DeleteItemResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// ─── Service ───
+
+service ItemService {
+  rpc CreateItem(CreateItemRequest) returns (CreateItemResponse);
+
+  rpc GetAllItems(GetAllItemsRequest) returns (ItemsResponse);
+  rpc GetItem(GetItemRequest) returns (GetItemResponse);
+  rpc GetItemsByOwner(GetItemsByOwnerRequest) returns (GetItemsByOwnerResponse);
+  rpc GetAvailableItems(GetAvailableItemsRequest) returns (ItemsResponse);
+  rpc GetItemsByCategory(GetItemsByCategoryRequest) returns (ItemsResponse);
+
+  rpc UpdateItem(UpdateItemRequest) returns (UpdateItemResponse);
+  rpc UpdateItemStatus(UpdateItemStatusRequest) returns (UpdateItemStatusResponse);
+
+  rpc DeleteItem(DeleteItemRequest) returns (DeleteItemResponse);
+
+  rpc CheckItemAvailability(CheckItemAvailabilityRequest) returns (CheckItemAvailabilityResponse);
+}

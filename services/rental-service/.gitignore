@@ -1,0 +1,56 @@
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+bin/
+obj/
+[Bb]in/
+[Oo]bj/
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+.nuget/
+project.lock.json
+project.assets.json
+
+# Test results
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+coverage/
+coverage.cobertura.xml
+coverage.opencover.xml
+
+# ASP.NET / local settings
+appsettings.Development.local.json
+appsettings.Local.json
+secrets.json
+
+# User secrets
+secrets/
+*.pfx
+*.p12

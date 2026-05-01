@@ -21,4 +21,4 @@ node Express.js
    docker-compose up
    ```
 
-3. Servis bo dostopen na http://localhost:3000/api/products
+3. Servis bo dostopen na http://localhost:3000/api/users
