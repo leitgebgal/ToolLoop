@@ -1,0 +1,104 @@
+services:
+  web-bff:
+    build:
+      context: ./bffs/web-bff
+      dockerfile: Dockerfile
+    image: toollop-web-bff:1.0
+    container_name: toollop-web-bff
+    ports:
+      - "8081:8081"
+    environment:
+      PORT: 8081
+      USER_SERVICE_URL: http://host.docker.internal:3000
+      RENTAL_SERVICE_URL: http://host.docker.internal:5000
+      ITEM_GRPC_URL: host.docker.internal:50051
+      CORS_ORIGIN: http://localhost:5173
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - toollop-bff-frontend-net
+
+  mobile-bff:
+    build:
+      context: ./bffs/mobile-bff
+      dockerfile: Dockerfile
+    image: toollop-mobile-bff:1.0
+    container_name: toollop-mobile-bff
+    ports:
+      - "8082:8082"
+    environment:
+      PORT: 8082
+      USER_SERVICE_URL: http://host.docker.internal:3000
+      RENTAL_SERVICE_URL: http://host.docker.internal:5000
+      ITEM_GRPC_URL: host.docker.internal:50051
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - toollop-bff-frontend-net
+
+  mf-users:
+    build:
+      context: ./frontend/mf-users
+      dockerfile: Dockerfile
+      args:
+        VITE_WEB_BFF_URL: http://localhost:8081
+    image: toollop-mf-users:1.0
+    container_name: toollop-mf-users
+    ports:
+      - "5174:80"
+    depends_on:
+      - web-bff
+    networks:
+      - toollop-bff-frontend-net
+
+  mf-items:
+    build:
+      context: ./frontend/mf-items
+      dockerfile: Dockerfile
+      args:
+        VITE_WEB_BFF_URL: http://localhost:8081
+    image: toollop-mf-items:1.0
+    container_name: toollop-mf-items
+    ports:
+      - "5175:80"
+    depends_on:
+      - web-bff
+    networks:
+      - toollop-bff-frontend-net
+
+  mf-rentals:
+    build:
+      context: ./frontend/mf-rentals
+      dockerfile: Dockerfile
+      args:
+        VITE_WEB_BFF_URL: http://localhost:8081
+    image: toollop-mf-rentals:1.0
+    container_name: toollop-mf-rentals
+    ports:
+      - "5176:80"
+    depends_on:
+      - web-bff
+    networks:
+      - toollop-bff-frontend-net
+
+  frontend-shell:
+    build:
+      context: ./frontend/frontend-shell
+      dockerfile: Dockerfile
+      args:
+        VITE_WEB_BFF_URL: http://localhost:8081
+    image: toollop-frontend-shell:1.0
+    container_name: toollop-frontend-shell
+    ports:
+      - "5173:80"
+    depends_on:
+      - web-bff
+      - mf-users
+      - mf-items
+      - mf-rentals
+    networks:
+      - toollop-bff-frontend-net
+
+networks:
+  toollop-bff-frontend-net:
+    driver: bridge
