@@ -15,6 +15,16 @@ private val logger = KotlinLogging.logger {}
 
 fun Application.configureRouting(itemService: ItemService) {
     routing {
+        get("/health") {
+            call.respond(
+                mapOf(
+                    "service" to "item-service",
+                    "status" to "UP",
+                    "timestamp" to java.time.Instant.now().toString()
+                )
+            )
+        }
+        
         route("/items") {
 
             // GET /items?category=X&available=true

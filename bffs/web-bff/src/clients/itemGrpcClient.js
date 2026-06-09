@@ -2,6 +2,7 @@ const path = require("path");
 const grpc = require("@grpc/grpc-js");
 const protoLoader = require("@grpc/proto-loader");
 const env = require("../config/env");
+const { createBreaker } = require("../utils/circuitBreaker");
 
 const protoPath = path.join(__dirname, "..", "proto", "item.proto");
 
@@ -52,101 +53,136 @@ function unary(methodName, request) {
   });
 }
 
-const itemGrpcClient = {
-  async getAllItems() {
+const getAllItemsBreaker = createBreaker(
+  "item.getAllItems",
+  async () => {
     const response = await unary("GetAllItems", {});
     return response.items.map(mapProtoItem);
   },
+  () => []
+);
 
-  async getAvailableItems() {
+const getAvailableItemsBreaker = createBreaker(
+  "item.getAvailableItems",
+  async () => {
     const response = await unary("GetAvailableItems", {});
     return response.items.map(mapProtoItem);
   },
+  () => []
+);
 
-  async getItemsByCategory(category) {
+const getItemsByCategoryBreaker = createBreaker(
+  "item.getItemsByCategory",
+  async (category) => {
     const response = await unary("GetItemsByCategory", {
       category
     });
 
     return response.items.map(mapProtoItem);
   },
+  () => []
+);
 
-  async getItemsByOwner(ownerId) {
+const getItemsByOwnerBreaker = createBreaker(
+  "item.getItemsByOwner",
+  async (ownerId) => {
     const response = await unary("GetItemsByOwner", {
       owner_id: ownerId
     });
 
     return response.items.map(mapProtoItem);
   },
+  () => []
+);
 
-  async getItem(id) {
-    const response = await unary("GetItem", {
-      id
-    });
+const getItemBreaker = createBreaker("item.getItem", async (id) => {
+  const response = await unary("GetItem", {
+    id
+  });
 
-    return {
-      found: response.found,
-      item: mapProtoItem(response.item)
-    };
-  },
+  return {
+    found: response.found,
+    item: mapProtoItem(response.item)
+  };
+});
 
-  async createItem(body) {
-    const response = await unary("CreateItem", {
-      owner_id: body.ownerId,
-      name: body.name,
-      description: body.description,
-      category: body.category,
-      location: body.location || ""
-    });
+const createItemBreaker = createBreaker("item.createItem", async (body) => {
+  const response = await unary("CreateItem", {
+    owner_id: body.ownerId,
+    name: body.name,
+    description: body.description,
+    category: body.category,
+    location: body.location || ""
+  });
 
-    return {
-      success: response.success,
-      message: response.message,
-      item: mapProtoItem(response.item)
-    };
-  },
+  return {
+    success: response.success,
+    message: response.message,
+    item: mapProtoItem(response.item)
+  };
+});
 
-  async updateItem(id, body) {
-    const response = await unary("UpdateItem", {
-      id,
-      name: body.name || "",
-      description: body.description || "",
-      category: body.category || "",
-      status: body.status || "",
-      location: body.location || ""
-    });
+const updateItemBreaker = createBreaker("item.updateItem", async (id, body) => {
+  const response = await unary("UpdateItem", {
+    id,
+    name: body.name || "",
+    description: body.description || "",
+    category: body.category || "",
+    status: body.status || "",
+    location: body.location || ""
+  });
 
-    return {
-      success: response.success,
-      message: response.message,
-      item: mapProtoItem(response.item)
-    };
-  },
+  return {
+    success: response.success,
+    message: response.message,
+    item: mapProtoItem(response.item)
+  };
+});
 
-  async updateItemStatus(id, status) {
-    const response = await unary("UpdateItemStatus", {
-      id,
-      status
-    });
+const updateItemStatusBreaker = createBreaker("item.updateItemStatus", async (id, status) => {
+  const response = await unary("UpdateItemStatus", {
+    id,
+    status
+  });
 
-    return {
-      success: response.success,
-      message: response.message,
-      item: mapProtoItem(response.item)
-    };
-  },
+  return {
+    success: response.success,
+    message: response.message,
+    item: mapProtoItem(response.item)
+  };
+});
 
-  async deleteItem(id) {
-    return unary("DeleteItem", {
-      id
-    });
-  },
+const deleteItemBreaker = createBreaker("item.deleteItem", async (id) => {
+  return unary("DeleteItem", {
+    id
+  });
+});
 
-  async checkItemAvailability(id) {
+const checkItemAvailabilityBreaker = createBreaker(
+  "item.checkItemAvailability",
+  async (id) => {
     return unary("CheckItemAvailability", {
       id
     });
-  }
+  },
+  () => ({
+    available: false,
+    degraded: true,
+    reason: "item-service circuit breaker fallback"
+  })
+);
+
+const itemGrpcClient = {
+  getAllItems: () => getAllItemsBreaker.fire(),
+  getAvailableItems: () => getAvailableItemsBreaker.fire(),
+  getItemsByCategory: (category) => getItemsByCategoryBreaker.fire(category),
+  getItemsByOwner: (ownerId) => getItemsByOwnerBreaker.fire(ownerId),
+  getItem: (id) => getItemBreaker.fire(id),
+  createItem: (body) => createItemBreaker.fire(body),
+  updateItem: (id, body) => updateItemBreaker.fire(id, body),
+  updateItemStatus: (id, status) => updateItemStatusBreaker.fire(id, status),
+  deleteItem: (id) => deleteItemBreaker.fire(id),
+  checkItemAvailability: (id) => checkItemAvailabilityBreaker.fire(id)
 };
 
 module.exports = itemGrpcClient;

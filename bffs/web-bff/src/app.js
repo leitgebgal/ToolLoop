@@ -12,6 +12,8 @@ const itemRoutes = require("./routes/itemRoutes");
 const rentalRoutes = require("./routes/rentalRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const streamRoutes = require("./routes/streamRoutes");
+const adminRoutes = require("./routes/adminRoutes");
+const healthClient = require("./clients/healthClient");
 
 const app = express();
 
@@ -27,6 +29,14 @@ app.get("/health", (_req, res) => {
     timestamp: new Date().toISOString()
   });
 });
+
+app.get("/health/ready", async (_req, res) => {
+  const result = await healthClient.readiness();
+  const statusCode = result.status === "UP" ? 200 : 503;
+  res.status(statusCode).json(result);
+});
+
+app.use("/admin", adminRoutes);
 
 app.use("/api/web/auth", authRoutes);
 app.use("/api/web/users", userRoutes);

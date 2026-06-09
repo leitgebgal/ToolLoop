@@ -68,6 +68,13 @@ try
         app.MapScalarApiReference();
     }
 
+    app.MapGet("/health", () => Results.Ok(new
+    {
+        service = "rental-service",
+        status = "UP",
+        timestamp = DateTimeOffset.UtcNow
+    }));
+
     app.MapControllers();
 
     // DB Migration on startup

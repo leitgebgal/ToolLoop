@@ -363,3 +363,98 @@ pre {
   border-radius: 14px;
   background: #eef2ff;
 }
+
+.admin-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  background: linear-gradient(135deg, #ffffff, #eef2ff);
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  color: #2563eb;
+  font-size: 13px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 88px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.status-ok {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-warn {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-bad {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-neutral {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.health-checks,
+.breaker-list {
+  display: grid;
+  gap: 12px;
+}
+
+.health-row,
+.breaker-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  background: #f8fafc;
+}
+
+.breaker-row strong,
+.health-row strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.steps {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 20px;
+}
+
+.steps code {
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: #e5e7eb;
+}
+
+@media (max-width: 800px) {
+  .admin-hero,
+  .health-row,
+  .breaker-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

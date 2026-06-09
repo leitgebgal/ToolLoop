@@ -27,6 +27,15 @@ const options = {
 
 const swaggerSpec = swaggerJsdoc(options);
 
+app.get('/health', (_req, res) => {
+  res.json({
+    service: 'user-service',
+    status: 'UP',
+    timestamp: new Date().toISOString()
+  });
+});
+
+
 app.use('/api/users', userRoutes);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 

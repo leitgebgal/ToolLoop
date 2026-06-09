@@ -12,6 +12,7 @@ services:
       USER_SERVICE_URL: http://host.docker.internal:3000
       RENTAL_SERVICE_URL: http://host.docker.internal:5000
       ITEM_GRPC_URL: host.docker.internal:50051
+      ITEM_HTTP_URL: http://host.docker.internal:8080
       CORS_ORIGIN: http://localhost:5173
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -31,6 +32,7 @@ services:
       USER_SERVICE_URL: http://host.docker.internal:3000
       RENTAL_SERVICE_URL: http://host.docker.internal:5000
       ITEM_GRPC_URL: host.docker.internal:50051
+      ITEM_HTTP_URL: http://host.docker.internal:8080
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
