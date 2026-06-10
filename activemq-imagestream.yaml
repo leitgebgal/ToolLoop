@@ -1,0 +1,16 @@
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  labels:
+    io.kompose.service: activemq
+  name: activemq
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+    - from:
+        kind: DockerImage
+        name: apache/activemq-classic:5.18.3
+      name: 5.18.3
+      referencePolicy:
+        type: ""

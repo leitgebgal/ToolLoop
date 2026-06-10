@@ -1,0 +1,44 @@
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  labels:
+    io.kompose.service: user-service
+  name: user-service
+spec:
+  replicas: 1
+  selector:
+    io.kompose.service: user-service
+  template:
+    metadata:
+      labels:
+        io.kompose.service: user-service
+    spec:
+      containers:
+        - env:
+            - name: JWT_EXPIRES_IN
+              value: 1d
+            - name: JWT_SECRET
+              value: itarhitekture026
+            - name: MONGO_URI
+              value: mongodb://user-mongo:27017/users-db
+            - name: NODE_ENV
+              value: production
+            - name: PORT
+              value: "3000"
+          image: ' '
+          name: user-service
+          ports:
+            - containerPort: 3000
+              protocol: TCP
+      restartPolicy: Always
+  test: false
+  triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+          - user-service
+        from:
+          kind: ImageStreamTag
+          name: user-service:latest
+      type: ImageChange

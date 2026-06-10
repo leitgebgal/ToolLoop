@@ -1,0 +1,42 @@
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  labels:
+    io.kompose.service: item-service
+  name: item-service
+spec:
+  replicas: 1
+  selector:
+    io.kompose.service: item-service
+  template:
+    metadata:
+      labels:
+        io.kompose.service: item-service
+    spec:
+      containers:
+        - env:
+            - name: GRPC_PORT
+              value: "50051"
+            - name: MONGO_URI
+              value: mongodb://item-mongo:27017
+            - name: PORT
+              value: "8080"
+          image: ' '
+          name: item-service
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+            - containerPort: 50051
+              protocol: TCP
+      restartPolicy: Always
+  test: false
+  triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+          - item-service
+        from:
+          kind: ImageStreamTag
+          name: item-service:latest
+      type: ImageChange

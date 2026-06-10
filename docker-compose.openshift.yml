@@ -1,0 +1,83 @@
+version: "3.9"
+
+services:
+  user-mongo:
+    image: mongo:7.0
+    container_name: user-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - user-mongo-data:/data/db
+
+  item-mongo:
+    image: mongo:7.0
+    container_name: item-mongo
+    ports:
+      - "27017"
+    volumes:
+      - item-mongo-data:/data/db
+
+  rental-postgres:
+    image: postgres:16
+    container_name: rental-postgres
+    environment:
+      POSTGRES_DB: rental_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - rental-postgres-data:/var/lib/postgresql/data
+
+  activemq:
+    image: apache/activemq-classic:5.18.3
+    container_name: activemq
+    ports:
+      - "61616:61616"
+      - "8161:8161"
+
+  user-service:
+    image: leitgebgal/toollop-user-service:latest
+    container_name: user-service
+    environment:
+      PORT: 3000
+      NODE_ENV: production
+      MONGO_URI: mongodb://user-mongo:27017/users-db
+      JWT_SECRET: itarhitekture026
+      JWT_EXPIRES_IN: 1d
+    ports:
+      - "3000:3000"
+    depends_on:
+      - user-mongo
+
+  item-service:
+    image: leitgebgal/toollop-item-service:latest
+    container_name: item-service
+    environment:
+      PORT: 8080
+      GRPC_PORT: 50051
+      MONGO_URI: mongodb://item-mongo:27017
+    ports:
+      - "8080:8080"
+      - "50051:50051"
+    depends_on:
+      - item-mongo
+
+  rental-service:
+    image: leitgebgal/toollop-rental-service:latest
+    container_name: rental-service
+    environment:
+      ASPNETCORE_URLS: http://+:5000
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: Host=rental-postgres;Port=5432;Database=rental_db;Username=postgres;Password=postgres
+      ActiveMQ__BrokerUri: activemq:tcp://activemq:61616
+    ports:
+      - "5000:5000"
+    depends_on:
+      - rental-postgres
+      - activemq
+
+volumes:
+  user-mongo-data:
+  item-mongo-data:
+  rental-postgres-data:

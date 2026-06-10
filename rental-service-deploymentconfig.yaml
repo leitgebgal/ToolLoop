@@ -1,0 +1,42 @@
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  labels:
+    io.kompose.service: rental-service
+  name: rental-service
+spec:
+  replicas: 1
+  selector:
+    io.kompose.service: rental-service
+  template:
+    metadata:
+      labels:
+        io.kompose.service: rental-service
+    spec:
+      containers:
+        - env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Production
+            - name: ASPNETCORE_URLS
+              value: http://+:5000
+            - name: ActiveMQ__BrokerUri
+              value: activemq:tcp://activemq:61616
+            - name: ConnectionStrings__DefaultConnection
+              value: Host=rental-postgres;Port=5432;Database=rental_db;Username=postgres;Password=postgres
+          image: ' '
+          name: rental-service
+          ports:
+            - containerPort: 5000
+              protocol: TCP
+      restartPolicy: Always
+  test: false
+  triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+          - rental-service
+        from:
+          kind: ImageStreamTag
+          name: rental-service:latest
+      type: ImageChange

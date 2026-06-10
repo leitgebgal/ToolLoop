@@ -1,0 +1,42 @@
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  labels:
+    io.kompose.service: item-mongo
+  name: item-mongo
+spec:
+  replicas: 1
+  selector:
+    io.kompose.service: item-mongo
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        io.kompose.service: item-mongo
+    spec:
+      containers:
+        - image: ' '
+          name: item-mongo
+          ports:
+            - containerPort: 27017
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /data/db
+              name: item-mongo-data
+      restartPolicy: Always
+      volumes:
+        - name: item-mongo-data
+          persistentVolumeClaim:
+            claimName: item-mongo-data
+  test: false
+  triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+          - item-mongo
+        from:
+          kind: ImageStreamTag
+          name: item-mongo:7.0
+      type: ImageChange

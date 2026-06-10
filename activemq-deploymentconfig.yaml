@@ -1,0 +1,35 @@
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  labels:
+    io.kompose.service: activemq
+  name: activemq
+spec:
+  replicas: 1
+  selector:
+    io.kompose.service: activemq
+  template:
+    metadata:
+      labels:
+        io.kompose.service: activemq
+    spec:
+      containers:
+        - image: ' '
+          name: activemq
+          ports:
+            - containerPort: 61616
+              protocol: TCP
+            - containerPort: 8161
+              protocol: TCP
+      restartPolicy: Always
+  test: false
+  triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+          - activemq
+        from:
+          kind: ImageStreamTag
+          name: activemq:5.18.3
+      type: ImageChange

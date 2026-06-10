@@ -1,0 +1,49 @@
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  labels:
+    io.kompose.service: rental-postgres
+  name: rental-postgres
+spec:
+  replicas: 1
+  selector:
+    io.kompose.service: rental-postgres
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        io.kompose.service: rental-postgres
+    spec:
+      containers:
+        - env:
+            - name: POSTGRES_DB
+              value: rental_db
+            - name: POSTGRES_PASSWORD
+              value: postgres
+            - name: POSTGRES_USER
+              value: postgres
+          image: ' '
+          name: rental-postgres
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: rental-postgres-data
+      restartPolicy: Always
+      volumes:
+        - name: rental-postgres-data
+          persistentVolumeClaim:
+            claimName: rental-postgres-data
+  test: false
+  triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+          - rental-postgres
+        from:
+          kind: ImageStreamTag
+          name: rental-postgres:16
+      type: ImageChange
